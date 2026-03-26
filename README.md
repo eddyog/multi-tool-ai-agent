@@ -82,7 +82,7 @@ Follow these steps on your machine after cloning the repository.
 1. **Clone the repository** (replace `<repo-url>` with your Git remote):
 
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/eddyog/multi-tool-ai-agent.git
    cd multi-tool-ai-agent
    ```
 
@@ -166,7 +166,7 @@ PORT=3000
 
 ## Demo video
 
-**[Watch the demo video](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)** *(placeholder—replace `YOUR_VIDEO_ID` with the final submitted walkthrough.)*
+**[Watch the demo video](https://www.youtube.com/watch?v=z3ltPy5k-xc)** *(placeholder—replace `YOUR_VIDEO_ID` with the final submitted walkthrough.)*
 
 This link is intended for the **course submission**: a short, unedited screen recording of the **web UI** showing Flex using **multiple tools** (for example calculator, web search, and RAG). Record after `npm run ingest` and with valid keys in `.env` as required by the assignment.
 
