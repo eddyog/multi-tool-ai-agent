@@ -1,0 +1,34 @@
+---
+description: Multi-tool LangChain.js agent — stack, simplicity, logging, RAG attribution
+alwaysApply: true
+---
+
+# Multi-tool AI Agent — project rules
+
+## Stack
+
+- **Language:** JavaScript only (no TypeScript) unless the course explicitly requires otherwise.
+- **Server:** Express on Node.js.
+- **Frontend:** Plain HTML, CSS, and client-side JavaScript served from `public/` (no SPA frameworks unless assigned).
+- **Agent:** LangChain.js v1 packages already in the repo: `langchain`, `@langchain/core`, `@langchain/openai`, `@langchain/tavily`. Prefer current documented APIs for agents, tools, and chat models.
+
+## Design
+
+- Keep the codebase **small and beginner-friendly**: one clear path through the code, minimal abstractions.
+- **No authentication** and **no databases** unless the assignment changes.
+- Do not add frameworks or patterns “for scale” (no Redis, queues, microservices, etc.).
+
+## Tools and safety
+
+- **Calculator:** Evaluate math with a safe path only (e.g. `mathjs` with a controlled scope). Never use `eval()` or `new Function()` on user-supplied expressions.
+- **Web search:** Use Tavily via `@langchain/tavily` as configured by the project.
+- **RAG:** Retrieval must support **source attribution** — user-facing answers should indicate which document (or chunk label) the information came from.
+
+## Logging
+
+- Use **structured JSON logs** (one JSON object per line) for important events.
+- When the agent runs, logs should make grading/debugging easy: **tool name, arguments, and results** (truncate very large payloads if needed, but do not omit tool boundaries).
+
+## Repo hygiene
+
+- Secrets live only in `.env` (never committed). Follow course `.gitignore` rules: do not ignore grading-related paths the instructor asked to keep (e.g. `.cursor/`, `CLAUDE.md`, `ai/` if present).
