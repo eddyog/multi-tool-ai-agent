@@ -5,6 +5,8 @@
 </p>
 A **LangChain.js** multi-tool chat agent with a **Flex the Lion** themed web UI—built for **IS 590R (Applied AI Projects)** at BYU. Flex helps with math, web search, course MongoDB notes, general gym and fitness questions, and follow-ups using **session memory**.
 
+**[Watch the demo video](https://www.youtube.com/watch?v=z3ltPy5k-xc)** 
+
 ---
 
 ## Project overview
@@ -166,7 +168,7 @@ PORT=3000
 
 ## Demo video
 
-**[Watch the demo video](https://www.youtube.com/watch?v=z3ltPy5k-xc)** *(placeholder—replace `YOUR_VIDEO_ID` with the final submitted walkthrough.)*
+**[Watch the demo video](https://www.youtube.com/watch?v=z3ltPy5k-xc)** 
 
 This link is intended for the **course submission**: a short, unedited screen recording of the **web UI** showing Flex using **multiple tools** (for example calculator, web search, and RAG). Record after `npm run ingest` and with valid keys in `.env` as required by the assignment.
 
