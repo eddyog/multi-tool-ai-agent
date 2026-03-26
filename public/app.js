@@ -63,6 +63,8 @@ const EXAMPLE_PROMPTS = [
   { type: "Web safari", text: "Flex, can you search the web for a short update on MongoDB Atlas?" },
   { type: "MongoDB den", text: "Flex, from our docs: when should I embed vs reference another collection?" },
   { type: "Gym buddy", text: "Flex, suggest a simple 3-day beginner gym split with a rest day between lifting days." },
+  { type: "Gym buddy", text: "Flex, what are a few solid compound leg exercises I can do with a barbell or dumbbells?" },
+  { type: "Gym buddy", text: "Flex, in plain language, what’s the difference between training for strength vs hypertrophy?" },
 ];
 
 function getSessionId() {

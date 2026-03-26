@@ -1,6 +1,6 @@
 # Multi-Tool AI Agent — Flex the Lion
 
-![Flex the Lion logo](public/assets/flex-logo.png)
+<img src="public/assets/flex-logo.png" alt="Flex Logo" width="140" />
 
 A **LangChain.js** multi-tool chat agent with a **Flex the Lion** themed web UI—built for **IS 590R (Applied AI Projects)** at BYU. Flex helps with math, web search, course MongoDB notes, general gym and fitness questions, and follow-ups using **session memory**.
 

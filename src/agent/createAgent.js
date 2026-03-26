@@ -69,6 +69,23 @@ function normalizeMessageContent(content) {
 }
 
 /**
+ * Strip common LaTeX-style math tokens so replies stay readable plain text in the UI.
+ * @param {string} s
+ */
+function plainTextMathReply(s) {
+  if (typeof s !== "string") return s;
+  return s
+    .replace(/\\\(/g, "")
+    .replace(/\\\)/g, "")
+    .replace(/\\\[/g, "")
+    .replace(/\\\]/g, "")
+    .replace(/\\times\b/g, "×")
+    .replace(/\\div\b/g, "/")
+    .replace(/\\cdot\b/g, "·")
+    .replace(/\\text\{([^}]*)\}/g, "$1");
+}
+
+/**
  * Last AI message in the trace is typically the final natural-language reply.
  * @param {{ messages?: unknown[] }} result
  */
@@ -82,7 +99,7 @@ function extractAssistantReply(result) {
   if (!lastAi) {
     return "Sorry, I did not get a response from the model.";
   }
-  return normalizeMessageContent(lastAi.content);
+  return plainTextMathReply(normalizeMessageContent(lastAi.content));
 }
 
 /**
