@@ -9,8 +9,12 @@ const { logInfo, logError } = require("./logger");
 
 const TOOL_NAME = "web_search";
 
+const MAX_DIGEST_CHARS = 320;
+const MAX_SNIPPET_CHARS = 220;
+
 /**
- * Turn Tavily JSON into a short readable string for the agent.
+ * Turn Tavily JSON into a conservative, clearly sectioned string for the agent.
+ * Separates a cautious summary from raw source links/snippets so the model does not over-claim.
  * @param {unknown} data
  */
 function formatTavilyResults(data) {
@@ -23,21 +27,71 @@ function formatTavilyResults(data) {
   if (d.error) {
     return `Search error: ${d.error}`;
   }
-  const lines = [];
-  if (d.answer) {
-    lines.push(`Summary: ${d.answer}`);
-  }
   const results = Array.isArray(d.results) ? d.results : [];
   if (results.length === 0) {
-    return lines.length ? lines.join("\n") : "No search results returned.";
+    return "No search results returned. There is nothing to summarize.";
   }
+
+  const snippetLens = results.map((r) => ((r.content || "").trim().length));
+  const thinSnippets = snippetLens.length > 0 && snippetLens.every((n) => n < 90);
+
+  const summaryBlock = [];
+  summaryBlock.push(
+    "This section is ONLY a loose recap of what the search API returned. " +
+      "Do not state facts as certain unless they appear clearly in the snippets under SOURCES. " +
+      "If anything matters, confirm it by opening the links."
+  );
+
+  if (typeof d.answer === "string" && d.answer.trim()) {
+    let digest = d.answer.replace(/\s+/g, " ").trim();
+    if (digest.length > MAX_DIGEST_CHARS) {
+      digest = `${digest.slice(0, MAX_DIGEST_CHARS)}…`;
+    }
+    summaryBlock.push(
+      "Automated digest (may be incomplete or wrong; treat as hints only): " + digest
+    );
+  } else {
+    summaryBlock.push(
+      "No short digest was provided. Infer only what the source snippets below actually say—do not fill gaps with assumptions."
+    );
+  }
+
+  const caveats = [];
+  if (results.length >= 2) {
+    caveats.push(
+      "Several sources were retrieved; they may disagree or reflect different dates or angles."
+    );
+  }
+  if (thinSnippets) {
+    caveats.push("Snippets are very short—answers based on this search should be treated as preliminary and verified.");
+  }
+  if (caveats.length) {
+    summaryBlock.push(caveats.join(" "));
+  }
+  summaryBlock.push(
+    "If the question needs high confidence, say the user should verify using the URLs below."
+  );
+
+  const sourceLines = [];
+  let i = 1;
   for (const r of results) {
     const title = r.title || "Untitled";
-    const url = r.url || "";
-    const snippet = (r.content || "").replace(/\s+/g, " ").trim().slice(0, 400);
-    lines.push(`- ${title} (${url})\n  ${snippet}`);
+    const url = r.url || "(no URL)";
+    const rawSnip = (r.content || "").replace(/\s+/g, " ").trim();
+    const snippet = rawSnip.slice(0, MAX_SNIPPET_CHARS);
+    const snipPart = snippet
+      ? `\n   Excerpt: ${snippet}${rawSnip.length > MAX_SNIPPET_CHARS ? "…" : ""}`
+      : "\n   Excerpt: (none)";
+    sourceLines.push(`${i}. ${title}\n   Link: ${url}${snipPart}`);
+    i += 1;
   }
-  return lines.join("\n\n");
+
+  return (
+    "=== SUMMARY (from search only; may need verification) ===\n" +
+    summaryBlock.join("\n\n") +
+    "\n\n=== SOURCES (use these to verify; do not invent beyond excerpts) ===\n" +
+    sourceLines.join("\n\n")
+  );
 }
 
 /**
@@ -73,7 +127,10 @@ function createWebSearchTool() {
 
   return new DynamicStructuredTool({
     name: TOOL_NAME,
-    description: tavily.description,
+    description:
+      tavily.description +
+      " When you answer, stick to what the tool output (especially SOURCES excerpts) actually supports; " +
+      "if results are thin or mixed, say the user should verify via the links.",
     schema: z.object({
       query: z.string().describe("Search query"),
     }),

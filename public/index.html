@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flex the Lion — Multi-tool AI Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <div class="chat-shell">
+        <header class="header">
+          <div class="header-brand">
+            <span class="header-logo" aria-hidden="true">
+              <img
+                class="header-logo-img"
+                src="/assets/flex-logo.png"
+                alt=""
+                width="48"
+                height="48"
+                decoding="async"
+              />
+            </span>
+            <div class="header-titles">
+              <h1 class="main-title"><span class="brand-mascot">Flex the Lion</span></h1>
+              <p class="brand-tagline">Multi-tool AI Agent</p>
+              <p class="subtitle">
+                Math, web search, MongoDB docs, and general gym &amp; fitness tips — all in one conversation
+              </p>
+            </div>
+          </div>
+        </header>
+
+        <div class="chat-panel">
+          <div class="chat-panel-inner">
+            <div class="mascot-rail-spacer" aria-hidden="true"></div>
+            <aside class="mascot-rail" id="mascot-rail" aria-hidden="true">
+              <div class="mascot-rail-inner">
+                <p class="mascot-caption">Flex</p>
+                <div class="mascot" id="mascot">
+                  <div class="mascot-glow" aria-hidden="true"></div>
+                  <div class="mascot-body">
+                    <div class="mascot-face" data-mascot-part="face">
+                      <img
+                        id="mascot-img"
+                        class="mascot-img"
+                        src="/assets/flex-curious.png"
+                        alt=""
+                        width="140"
+                        height="140"
+                        decoding="async"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p class="mascot-status" id="mascot-status">Ready</p>
+                <p class="mascot-tired-toast hidden" id="mascot-tired-toast">
+                  Flex is getting a little tired… but he’s still ready to help.
+                </p>
+              </div>
+            </aside>
+
+            <div class="chat-column">
+              <main class="main">
+                <ul id="messages" class="messages" aria-live="polite"></ul>
+                <div id="loading" class="loading hidden" role="status" aria-live="polite">
+                  <div class="loading-inner">
+                    <span class="loading-dots" aria-hidden="true">
+                      <span></span><span></span><span></span>
+                    </span>
+                    <span class="loading-label">Flex is thinking…</span>
+                  </div>
+                </div>
+              </main>
+
+              <footer class="composer-wrap">
+                <label class="sr-only" for="input">Your message</label>
+                <div class="composer">
+                  <textarea
+                    id="input"
+                    rows="1"
+                    placeholder="Chat with Flex…"
+                    autocomplete="off"
+                  ></textarea>
+                  <button type="button" id="send" class="send-btn" aria-label="Send message">Send</button>
+                </div>
+                <p class="composer-hint"><kbd>Enter</kbd> send · <kbd>Shift</kbd>+<kbd>Enter</kbd> new line</p>
+              </footer>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

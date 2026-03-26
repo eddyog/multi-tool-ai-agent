@@ -1,83 +1,198 @@
-# Multi-tool AI Agent
+# Multi-Tool AI Agent — Flex the Lion
 
-A **LangChain.js** chat **agent** (ReAct-style) with **three tools** — calculator, **Tavily** web search, and **RAG** over real documents — plus **conversation memory** and a **simple web UI**. Built for an individual **IS 590R** project (Dev Units 7–8).
+![Flex the Lion logo](public/assets/flex-logo.png)
 
-## Features (target)
+A **LangChain.js** multi-tool chat agent with a **Flex the Lion** themed web UI—built for **IS 590R (Applied AI Projects)** at BYU. Flex helps with math, web search, course MongoDB notes, general gym and fitness questions, and follow-ups using **session memory**.
 
-| Area | What you get |
-|------|----------------|
-| **Tools** | Safe calculator (`mathjs`), web search (Tavily), RAG with **source attribution** |
-| **Agent** | ReAct pattern: model decides when to call which tool |
-| **Memory** | Multi-turn context in a session |
-| **API** | Express server — chat endpoint + health check |
-| **UI** | Plain HTML/CSS/JS in `public/` (to be wired) |
-| **Logging** | Structured JSON logs (tool calls, args, results) |
+---
+
+## Project overview
+
+This project is a **ReAct-style** agent (via LangChain **`createAgent`**) exposed through a small **Express** API and a **plain HTML/CSS/JavaScript** chat interface. Users talk to **Flex the Lion**, who can call tools when appropriate and keep context within a browser session.
+
+**Supported capabilities include:**
+
+- **Calculator tool** — safe math via `mathjs` (no `eval`)
+- **Tavily web search** — current events and live facts from the web
+- **RAG** over **local** MongoDB-themed markdown in `docs/`, with **source attribution** in replies
+- **Conversation memory** — in-memory history per `sessionId`
+- **Web chat UI** — dark theme, responsive layout, **Flex branding**
+- **Flex mascot states** — pose and status change with prompts (thinking while loading, math, workout, thanks, one-time “tired” milestone, answered after replies, and more)
+- **General gym / fitness help** — practical, **non-medical** guidance in the system prompt (not a substitute for a professional)
+
+---
+
+## Features and functionality
+
+- **Math** — Arithmetic, percentages, roots, and related expressions through the calculator tool.
+- **Web search** — Questions that need up-to-date or external information (requires `TAVILY_API_KEY`).
+- **MongoDB document Q&A** — Answers grounded in ingested `docs/*.md` with **Sources** surfaced when the knowledge base is used.
+- **Follow-ups** — Same-session memory so you can ask for shorter summaries, clarifications, or next steps.
+- **Gym / fitness** — General workout ideas, exercises, and beginner-friendly tips; **not** medical or personalized clinical advice.
+- **Dynamic mascot (Flex)** — Client-side states including **thinking** (loading), **math**, **workout** (alternates between two images), **love** (thanks / positive messages), **tired** (one-time moment after five user prompts), **answered** (after a reply), plus a **curious** default for general prompts.
+- **Structured JSON logging** — Tool and API activity logged as one JSON line per event (server-side).
+- **Health check** — `GET /health` returns `{ "status": "ok" }`.
+
+---
 
 ## Tech stack
 
-- **Node.js** + **Express**
-- **LangChain.js:** `langchain`, `@langchain/core`, `@langchain/openai`, `@langchain/tavily`
-- **Math:** `mathjs`
-- **No** auth, **no** database (per assignment baseline)
+| Technology | Role |
+|------------|------|
+| **Node.js** | Runtime (≥ 20 recommended) |
+| **Express** | HTTP server, API routes, static `public/` files |
+| **LangChain.js** | `createAgent`, ReAct loop, tool binding |
+| **OpenAI** | Chat completions and embeddings (`@langchain/openai`) |
+| **Tavily** | Web search tool (`@langchain/tavily`) |
+| **HTML / CSS / JavaScript** | Chat UI (no React) |
+| **mathjs** | Calculator tool |
 
-## Quick start
+---
 
-1. **Clone** the repo and install dependencies:
+## Project structure
+
+```text
+public/                 # Chat UI: index.html, styles.css, app.js; Flex assets in public/assets/
+docs/                   # Markdown sources for RAG (sample MongoDB-topic notes)
+src/
+  server.js             # Express: /health, POST /api/chat, static files
+  agent/
+    prompts.js          # System instructions (Flex persona + tool rules)
+    createAgent.js      # Agent factory and turn runner
+    memoryStore.js      # In-memory chat history by sessionId
+  tools/
+    calculatorTool.js
+    webSearchTool.js
+    ragTool.js
+    logger.js
+  rag/
+    vectorStore.js      # File-backed vectors + similarity search
+    ingestDocs.js       # Chunk, embed, write vector store
+    data/               # vector-store.json (generated; gitignored)
+.env.example            # Template for environment variables
+```
+
+---
+
+## Setup and installation
+
+Follow these steps on your machine after cloning the repository.
+
+1. **Clone the repository** (replace `<repo-url>` with your Git remote):
+
+   ```bash
+   git clone <repo-url>
+   cd multi-tool-ai-agent
+   ```
+
+2. **Install dependencies:**
 
    ```bash
    npm install
    ```
 
-2. **Environment** — copy `.env.example` to `.env` and add your keys:
+3. **Configure environment variables** — copy `.env.example` to `.env` and fill in your keys (see [Environment variables](#environment-variables) below).
 
-   - `OPENAI_API_KEY` — from [OpenAI](https://platform.openai.com/)
-   - `TAVILY_API_KEY` — from [Tavily](https://www.tavily.com/)
-   - `PORT` — optional (defaults to `3000`)
-
-3. **Run the server:**
+4. **Ingest documents for RAG** (required before relying on the knowledge base):
 
    ```bash
-   npm start
+   npm run ingest
    ```
 
-   For auto-reload during development:
+   This generates `src/rag/data/vector-store.json`. Re-run **`npm run ingest`** whenever you change files under `docs/`.
+
+5. **Start the server** — development mode with auto-restart:
 
    ```bash
    npm run dev
    ```
 
-4. **Health check:** open or curl `http://localhost:3000/health` — expect `{ "status": "ok" }`.
+   Or production-style:
 
-5. **Chat API (placeholder):** `POST /api/chat` with JSON body — agent wiring comes in a later phase.
+   ```bash
+   npm start
+   ```
 
-## Project layout
+6. **Open the app** in a browser: [http://localhost:3000](http://localhost:3000) (or the port set in `PORT`).  
+   **Health check:** [http://localhost:3000/health](http://localhost:3000/health)
 
-```text
-src/
-  server.js      # Express app (API + static files)
-  agent/         # Agent / ReAct wiring (next)
-  tools/         # LangChain tools + logging helpers
-  rag/           # Embeddings, vector store, ingest
-  utils/         # Small shared helpers
-public/          # Chat UI (HTML/CSS/JS)
-docs/            # Optional extra notes
+---
+
+## Environment variables
+
+Create a **`.env`** file in the project root. You can start from **`.env.example`**.
+
+**Required / common entries:**
+
+```env
+OPENAI_API_KEY=
+TAVILY_API_KEY=
+PORT=3000
 ```
 
-## Documentation
+| Variable | Notes |
+|----------|--------|
+| `OPENAI_API_KEY` | **Required** for the chat model and embeddings (ingestion + RAG). |
+| `TAVILY_API_KEY` | Optional for web search; if omitted, the search tool reports that search is unavailable. |
+| `PORT` | Optional; defaults to **3000** if unset. |
 
-- **`context.md`** — Purpose, architecture, constraints  
-- **`PRD.md`** — Problem, features, success criteria, non-goals  
-- **`Roadmap.md`** — Phased checklist and progress  
+**Optional (see `.env.example` or project docs):** `OPENAI_CHAT_MODEL`, `OPENAI_TEMPERATURE`, `AGENT_RECURSION_LIMIT`.
 
-## Project status
+---
 
-| Phase | Status |
-|--------|--------|
-| Repo + Express skeleton + logging | **Done** |
-| LangChain agent + three tools | **Not started** |
-| RAG ingest + attribution | **Not started** |
-| Chat UI + memory | **Not started** |
-| Polish + demo video + commit history | **Not started** |
+## How to use
+
+1. Start the server (`npm run dev` or `npm start`) and open **http://localhost:3000**.
+2. Read the **welcome** message from Flex and optional **starter prompts** (chips) for quick ideas.
+3. Type a message in the box and press **Enter** to send ( **Shift+Enter** for a new line).
+4. Watch the **mascot** and **status label** update while Flex **thinks**, then read the reply. If the model used the knowledge base, check the **Sources** section when present.
+5. Ask **follow-ups** in the same tab—your **session** is remembered until you clear site data or the server restarts (memory is **in-memory**, not a database).
+
+---
+
+## Sample prompts
+
+| Category | Example |
+|----------|---------|
+| **Math** | “What is `sqrt(256) + 15%` of 200 in one expression?” |
+| **Web search** | “What is a short recent update on MongoDB Atlas?” *(needs `TAVILY_API_KEY`)* |
+| **MongoDB docs (RAG)** | “From our docs: when should I embed vs reference another collection?” |
+| **Gym / fitness** | “Suggest a simple 3-day beginner gym split with rest days.” |
+| **Follow-up (memory)** | After a long answer: “Can you give a shorter summary?” |
+| **Thank-you / fun** | “Thanks, Flex!” or “You’re awesome—love this UI.” |
+
+---
+
+## Demo video
+
+**[Watch the demo video](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)** *(placeholder—replace `YOUR_VIDEO_ID` with the final submitted walkthrough.)*
+
+This link is intended for the **course submission**: a short, unedited screen recording of the **web UI** showing Flex using **multiple tools** (for example calculator, web search, and RAG). Record after `npm run ingest` and with valid keys in `.env` as required by the assignment.
+
+---
+
+## Screenshots and branding
+
+Flex uses several poses in the UI; here is the **answered** state after Flex completes a reply:
+
+![Flex answered pose](public/assets/flex-answered.png)
+
+---
+
+## Notes and limitations
+
+- This repository is a **school assignment demo**, not a production product.
+- **Vector retrieval** uses **locally ingested** markdown under `docs/`; quality depends on those documents and on running **`npm run ingest`** after changes.
+- **Gym and fitness** answers are **general and educational** only; Flex is **not** a medical professional—see the system prompt and UI copy for disclaimers.
+- **Session memory** lives **in memory** on the server and is cleared when the process stops; there is **no** end-user authentication or persistent database in the baseline scope.
+
+---
+
+## Additional documentation
+
+- **`context.md`** — Project context  
+- **`PRD.md`** — Requirements and non-goals  
+- **`Roadmap.md`** — Phased checklist  
 
 ## License
 
