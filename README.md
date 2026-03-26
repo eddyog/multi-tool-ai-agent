@@ -7,8 +7,7 @@ A **LangChain.js** multi-tool chat agent with a **Flex the Lion** themed web UIâ
 
 ## Demo Video
 
-[![Watch the demo video](./assets/demo-thumbnail.png)](https://www.youtube.com/watch?v=z3ltPy5k-xc)
-
+[![Watch the demo video](./images/flex-answered.png)](https://www.youtube.com/watch?v=z3ltPy5k-xc)
 ---
 
 ## Project overview
